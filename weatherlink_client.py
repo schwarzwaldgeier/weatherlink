@@ -1,5 +1,7 @@
 from requests import get
 
+from wind_record import WindRecord
+
 
 class WeatherlinkClient:
     api_key: str
@@ -51,11 +53,13 @@ class WeatherlinkClient:
         data = response.json()
         return data
 
-    def get_sensors_from_historic_data(self, historic_data):
+    def get_wind_from_historic_data(self, historic_data):
 
         sensors = []
+        wind_records = []
         for sensor in historic_data['sensors']:
             sensors.append(sensor)
+
             if sensor["sensor_type"] == 27:
                 data = sensor['data']
                 for dataset in data:
@@ -65,9 +69,16 @@ class WeatherlinkClient:
                     wind_speed_hi = dataset.get('wind_speed_hi')
                     wind_dir_of_hi = dataset.get('wind_dir_of_hi')
                     wind_dir_of_prevail = dataset.get('wind_dir_of_prevail')
+                    record = WindRecord(timestamp=timestamp,
+                                        avg_speed=self.mph_to_kph(wind_speed_avg),
+                                        max_speed=self.mph_to_kph(wind_speed_hi),
+                                        avg_direction=wind_dir_of_prevail,
+                                        max_direction=wind_dir_of_hi)
+                    wind_records.append(record)
+
+        return wind_records
 
 
-        return sensors
 
     # @lru_cache
     def get_sensors_data(self, sensor_id_list):
@@ -107,8 +118,9 @@ class WeatherlinkClient:
         idx = round(deg / 22.5) % 16
         return directions[idx]
 
-    def mph_to_kph(self, mph: float) -> float:
-        return mph * 1.60934
+    def mph_to_kph(self, mph: float, precision=0) -> float:
+        kph = mph * 1.60934
+        return round(kph, precision)
 
     def inches_of_mercury_to_hpa(self, inches: float) -> float:
         return inches * 33.8639

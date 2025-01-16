@@ -19,7 +19,7 @@ class TestWeatherlinkClient:
 
     def test_init(self):
         assert self.client.api_key == "mvuzyka0gxwz6ij4mhxofwvrhvgopm7w"
-        assert self.client.api_secret == "jv4q3zthynysfu0d4dcwomwlza2ifcg2"
+
         assert self.client.station_id == "2cd28dfa-e64f-4833-9a38-83b36c72b587"
         assert self.client.base_url == "https://api.weatherlink.com/v2"
         assert self.client.headers == {
@@ -127,5 +127,6 @@ class TestWeatherlinkClient:
         one_hour_ealier = now - 3600
 
         response = self.client.get_historic_data(one_hour_ealier, now)
-        sensors = self.client.get_sensors_from_historic_data(response)
-        assert sensors is not None
+        wind = self.client.get_wind_from_historic_data(response)
+        assert wind is not None
+        print(wind)
