@@ -1,0 +1,12 @@
+### GET stations
+GET https://api.weatherlink.com/v2/stations?t={{$timestamp}}&api-key={{api-key}}
+X-Api-Secret: {{api-secret}}
+
+
+### GET current
+GET https://api.weatherlink.com/v2/current/2cd28dfa-e64f-4833-9a38-83b36c72b587?api-key={{api-key}}
+X-Api-Secret: {{api-secret}}
+
+### GET historic
+GET https://api.weatherlink.com/v2/historic/199795?api-key={{api-key}}&start-timestamp=1733688529&end-timestamp=1733692263
+X-Api-Secret: {{api-secret}}
