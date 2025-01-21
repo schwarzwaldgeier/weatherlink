@@ -4,6 +4,7 @@ import math
 import pytest
 
 from weatherlink_client import WeatherlinkClient
+from wind_record import WindRecord
 
 
 class TestWeatherlinkClient:
@@ -130,3 +131,39 @@ class TestWeatherlinkClient:
         wind = self.client.get_wind_from_historic_data(response)
         assert wind is not None
         print(wind)
+
+    def test_generate_wind_records_html(self):
+        wind_records = [
+            WindRecord(timestamp=1733742900, avg_speed=12, max_speed=18, avg_direction="N", max_direction="NNO"),
+            WindRecord(timestamp=1733746500, avg_speed=10, max_speed=15, avg_direction="O", max_direction="ONO"),
+            WindRecord(timestamp=1733750100, avg_speed=8, max_speed=12, avg_direction="S", max_direction="SSO")
+        ]
+        html_output = self.client.generate_wind_records_html(wind_records, 3)
+
+        assert "<table border=\"1\">" in html_output
+        assert "<th>Timestamp</th>" in html_output
+        assert "<td>1733742900</td>" in html_output
+        assert "<td>12</td>" in html_output
+        assert "<td>18</td>" in html_output
+        assert "<td>N ↑</td>" in html_output
+        assert "<td>NNO ↑↗</td>" in html_output
+        assert "<td>1733746500</td>" in html_output
+        assert "<td>10</td>" in html_output
+        assert "<td>15</td>" in html_output
+        assert "<td>O →</td>" in html_output
+        assert "<td>ONO ↗→</td>" in html_output
+        assert "<td>1733750100</td>" in html_output
+        assert "<td>8</td>" in html_output
+        assert "<td>12</td>" in html_output
+        assert "<td>S ↓</td>" in html_output
+        assert "<td>SSO ↓↘</td>" in html_output
+
+    def test_get_sensors_from_historic_data_html(self):
+        now = int(datetime.datetime.now().timestamp())
+        one_hour_ealier = now - 3600
+
+        response = self.client.get_historic_data(one_hour_ealier, now)
+        wind = self.client.get_wind_from_historic_data(response)
+        assert wind is not None
+        html = self.client.generate_wind_records_html(wind, len(wind))
+        print(html)
