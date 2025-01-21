@@ -1,3 +1,5 @@
 requests
 requests_mock
 pytest
+python-dotenv
+fastapi

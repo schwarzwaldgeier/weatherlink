@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from requests import get
 
 from wind_record import WindRecord
@@ -78,8 +80,6 @@ class WeatherlinkClient:
 
         return wind_records
 
-
-
     # @lru_cache
     def get_sensors_data(self, sensor_id_list):
         sensors_list_comma_separated = ",".join(map(str, sensor_id_list))
@@ -98,8 +98,6 @@ class WeatherlinkClient:
 
     def get_wind_speed(self, single_sensor_data_response):
         return single_sensor_data_response['sensors'][0]['wind_speed']
-
-
 
     def get_sensor_catalog(self):
         params_str = "&".join([f"{key}={value}" for key, value in self.get_parameters.items()])
@@ -130,11 +128,9 @@ class WeatherlinkClient:
         html = """
         <table border="1">
             <tr>
-                <th>Timestamp</th>
-                <th>Avg Speed (kph)</th>
-                <th>Max Speed (kph)</th>
-                <th>Avg Direction</th>
-                <th>Max Direction</th>
+                <th>Zeit</th>
+                <th>Durchschnitt</th>
+                <th>Maximal</th>
             </tr>
         """
 
@@ -143,11 +139,11 @@ class WeatherlinkClient:
             max_direction_svg = f'<svg width="20" height="20" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><polygon points="50,0 100,100 50,80 0,100" transform="rotate({record.max_direction}, 50, 50)" /></svg>'
             html += f"""
             <tr>
-                <td>{record.timestamp}</td>
-                <td>{record.avg_speed}</td>
-                <td>{record.max_speed}</td>
-                <td>{record.avg_direction} {avg_direction_svg}</td>
-                <td>{record.max_direction} {max_direction_svg}</td>
+                <td>{datetime.fromtimestamp(record.timestamp).strftime('%d.%m.%Y %H:%M')}</td>
+                <td>{record.avg_speed} {record.avg_direction} {avg_direction_svg}</td>
+                <td>{record.max_speed}{record.max_direction} {max_direction_svg}</td>
+                <td></td>
+                <td></td>
             </tr>
             """
 
