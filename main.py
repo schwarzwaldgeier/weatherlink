@@ -1,7 +1,9 @@
 import os
+from datetime import datetime
 
 from fastapi import FastAPI
 from dotenv import load_dotenv
+from starlette.responses import HTMLResponse
 
 # Initialize the WeatherlinkClient with your credentials
 
@@ -21,13 +23,20 @@ client = WeatherlinkClient(
 )
 
 
-@app.get("/wind_records_html")
-def get_wind_records_html(n: int):
-    # Sample wind records for demonstration
-    wind_records = [
-        WindRecord(timestamp=1733742900, avg_speed=12, max_speed=18, avg_direction="N", max_direction="NNO"),
-        WindRecord(timestamp=1733746500, avg_speed=10, max_speed=15, avg_direction="O", max_direction="ONO"),
-        WindRecord(timestamp=1733750100, avg_speed=8, max_speed=12, avg_direction="S", max_direction="SSO")
-    ]
+@app.get("/html", response_class=HTMLResponse)
+def get_wind_records_html(n: int = 10):
+    now = int(datetime.now().timestamp()) + 3600 * 9
+    one_hour_earlier = now - 3600 * 11
+    historic_data = client.get_historic_data(one_hour_earlier, now)
+    wind_records = client.get_wind_from_historic_data(historic_data)
     html_output = client.generate_wind_records_html(wind_records, n)
     return html_output
+
+
+@app.get("/json")
+def get_wind_records_json(n: int = 10):
+    now = int(datetime.now().timestamp())
+    one_hour_earlier = now - 3600 * 10
+    historic_data = client.get_historic_data(one_hour_earlier, now)
+    wind_records = client.get_wind_from_historic_data(historic_data)
+    return wind_records

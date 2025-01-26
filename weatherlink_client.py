@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from requests import get
 
@@ -78,6 +78,7 @@ class WeatherlinkClient:
                                         max_direction=wind_dir_of_hi)
                     wind_records.append(record)
 
+        wind_records.sort(key=lambda x: x.timestamp, reverse=True)
         return wind_records
 
     # @lru_cache
@@ -134,16 +135,18 @@ class WeatherlinkClient:
             </tr>
         """
 
+
+
         for record in wind_records[:n]:
-            avg_direction_svg = f'<svg width="20" height="20" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><polygon points="50,0 100,100 50,80 0,100" transform="rotate({record.avg_direction}, 50, 50)" /></svg>'
-            max_direction_svg = f'<svg width="20" height="20" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><polygon points="50,0 100,100 50,80 0,100" transform="rotate({record.max_direction}, 50, 50)" /></svg>'
+            arrow_svg_template = '<svg data-name="1-Arrow Up" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" transform="rotate({rotation}) scale(0.4)"><path d="m26.71 10.29-10-10a1 1 0 0 0-1.41 0l-10 10 1.41 1.41L15 3.41V32h2V3.41l8.29 8.29z" /></svg>'
+            avg_direction_svg = arrow_svg_template.format(rotation=record.avg_direction + 180)
+            max_direction_svg = arrow_svg_template.format(rotation=record.max_direction + 180)
             html += f"""
             <tr>
-                <td>{datetime.fromtimestamp(record.timestamp).strftime('%d.%m.%Y %H:%M')}</td>
-                <td>{record.avg_speed} {record.avg_direction} {avg_direction_svg}</td>
-                <td>{record.max_speed}{record.max_direction} {max_direction_svg}</td>
-                <td></td>
-                <td></td>
+                <td>{(datetime.fromtimestamp(record.timestamp) + timedelta(hours=1)).strftime('%d.%m.%Y %H:%M')}</td>
+                <td>{int(record.avg_speed)} km/h {record.avg_direction}° {self.convert_wind_dir(record.avg_direction)} {avg_direction_svg}</td>
+                <td>{record.max_speed} km/h {record.max_direction}° {self.convert_wind_dir(record.max_direction)} {max_direction_svg}</td>
+               
             </tr>
             """
 
