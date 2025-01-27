@@ -25,8 +25,8 @@ client = WeatherlinkClient(
 
 @app.get("/html", response_class=HTMLResponse)
 def get_wind_records_html(n: int = 10):
-    now = int(datetime.now().timestamp()) + 3600 * 9
-    one_hour_earlier = now - 3600 * 11
+    now = int(datetime.now().timestamp())
+    one_hour_earlier = now - 3600 * 24
     historic_data = client.get_historic_data(one_hour_earlier, now)
     wind_records = client.get_wind_from_historic_data(historic_data)
     html_output = client.generate_wind_records_html(wind_records, n)
@@ -36,7 +36,7 @@ def get_wind_records_html(n: int = 10):
 @app.get("/json")
 def get_wind_records_json(n: int = 10):
     now = int(datetime.now().timestamp())
-    one_hour_earlier = now - 3600 * 10
+    one_hour_earlier = now - 3600
     historic_data = client.get_historic_data(one_hour_earlier, now)
     wind_records = client.get_wind_from_historic_data(historic_data)
     return wind_records
