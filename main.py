@@ -24,7 +24,7 @@ client = WeatherlinkClient(
 
 
 @app.get("/html", response_class=HTMLResponse)
-def get_wind_records_html(n: int = 10):
+def get_wind_records_html(n: int = 50):
     now = int(datetime.now().timestamp())
     one_hour_earlier = now - 3600 * 24
     historic_data = client.get_historic_data(one_hour_earlier, now)
