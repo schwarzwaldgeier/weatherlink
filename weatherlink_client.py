@@ -50,7 +50,8 @@ class WeatherlinkClient:
         params = {**self.get_parameters, "start-timestamp": start_ts, "end-timestamp": end_ts}
         params_str = "&".join([f"{key}={value}" for key, value in params.items()])
         print(params_str)
-        url = f"{self.base_url}/historic/{self.station_id}?{params_str}&start-timestamp={start_ts}&end-timestamp={end_ts}"
+        url = (f"{self.base_url}/historic/"
+               f"{self.station_id}?{params_str}&start-timestamp={start_ts}&end-timestamp={end_ts}")
         response = get(url, headers=self.headers)
         data = response.json()
         return data
@@ -127,27 +128,91 @@ class WeatherlinkClient:
     def generate_wind_records_html(self, wind_records, n):
 
         html = """
-        <table border="1">
+        
+        <style>
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    th, td {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        text-align: center;
+    }
+    th {
+        background-color: #f2f2f2;
+    }
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    
+    tr:nth-child(2) {
+    font-size: 150%;
+    }
+    
+    .speed {
+        font-size: 150%;   
+    }
+    
+    .direction {
+        font-size: 150%;   
+        
+    }
+</style>
+        <table border="1" >
             <tr>
-                <th>Zeit</th>
-                <th>Durchschnitt</th>
-                <th>Maximal</th>
+                <th>&nbsp;</th>
+                <th>Wind Ø</th>
+                <th>Wind max.</th>
             </tr>
         """
 
+        arrow_svg_template = """
+                    <svg 
+                   
+                    width="65"
+                    viewBox="0 0 100 75" 
+                    xmlns="http://www.w3.org/2000/svg">
+                      <g transform="rotate({rotation}, 50, 50)">
+                        <polygon points="50,15 60,50 50,40 40,50" fill="black" />
+                      </g>
+                    </svg>
+                    """
+        td_template = ("""
+        <td 
+            style="vertical-align: middle; font-size: 1.2em;">
+            <span class="speed">
+                {speed}
+            </span>&nbsp;km/h&nbsp;
+            
+            
 
+            
+   
+            <span class="direction">
+                {direction} {svg}
+            </span>
+        </td>
+        """)
 
+        rotation = 22.5
         for record in wind_records[:n]:
-            arrow_svg_template = '<svg data-name="1-Arrow Up" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" transform="rotate({rotation}) scale(0.4)"><path d="m26.71 10.29-10-10a1 1 0 0 0-1.41 0l-10 10 1.41 1.41L15 3.41V32h2V3.41l8.29 8.29z" /></svg>'
-            rotation = 22.5
             avg_direction_svg = arrow_svg_template.format(rotation=record.avg_direction * rotation + 180)
             max_direction_svg = arrow_svg_template.format(rotation=record.max_direction * rotation + 180)
+
+
+
+            avg_td = td_template.format(speed=int(record.avg_speed),
+                                        direction=self.convert_wind_dir(record.avg_direction), svg=avg_direction_svg)
+            max_td = td_template.format(speed=int(record.max_speed),
+                                        direction=self.convert_wind_dir(record.max_direction), svg=max_direction_svg)
+
             html += f"""
             <tr>
-                <td>{(datetime.fromtimestamp(record.timestamp) + timedelta(hours=1)).strftime('%d.%m.%Y %H:%M')}</td>
-                <td>{int(record.avg_speed)} km/h  {self.convert_wind_dir(record.avg_direction)} {avg_direction_svg}</td>
-                <td>{int(record.max_speed)} km/h  {self.convert_wind_dir(record.max_direction)} {max_direction_svg}</td>
-               
+                <td>{(datetime.fromtimestamp(record.timestamp) 
+                      + timedelta(hours=1)).strftime('%d.%m.%Y<br> %H:%M')}</td>
+                {avg_td}
+                {max_td}
             </tr>
             """
 
