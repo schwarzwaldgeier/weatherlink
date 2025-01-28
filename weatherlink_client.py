@@ -131,7 +131,7 @@ class WeatherlinkClient:
         
         <style>
     table {
-        width: 100%;
+        width: 90%;
         border-collapse: collapse;
     }
     th, td {
@@ -184,11 +184,7 @@ class WeatherlinkClient:
             <span class="speed">
                 {speed}
             </span>&nbsp;km/h&nbsp;
-            
-            
 
-            
-   
             <span class="direction">
                 {direction} {svg}
             </span>
@@ -200,8 +196,6 @@ class WeatherlinkClient:
             avg_direction_svg = arrow_svg_template.format(rotation=record.avg_direction * rotation + 180)
             max_direction_svg = arrow_svg_template.format(rotation=record.max_direction * rotation + 180)
 
-
-
             avg_td = td_template.format(speed=int(record.avg_speed),
                                         direction=self.convert_wind_dir(record.avg_direction), svg=avg_direction_svg)
             max_td = td_template.format(speed=int(record.max_speed),
@@ -209,8 +203,8 @@ class WeatherlinkClient:
 
             html += f"""
             <tr>
-                <td>{(datetime.fromtimestamp(record.timestamp) 
-                      + timedelta(hours=1)).strftime('%d.%m.%Y<br> %H:%M')}</td>
+                <td><span>{(datetime.fromtimestamp(record.timestamp)
+                      + timedelta(hours=1)).strftime('%H:%M')}</span></td>
                 {avg_td}
                 {max_td}
             </tr>
