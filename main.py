@@ -33,7 +33,8 @@ def get_wind_records_html(n: int = 50):
     return html_output
 
 
-@app.get("/json")
+@app.get("/json", summary="Note that the directions are not degrees, but cardinal directions. "
+                          "0=N, 1=NNE, 2=NE, ... , 15=NNW etc.")
 def get_wind_records_json(n: int = 10):
     now = int(datetime.now().timestamp())
     one_hour_earlier = now - 3600

@@ -110,7 +110,7 @@ class WeatherlinkClient:
 
     def convert_wind_dir(self, ordinal: int) -> str:
         if ordinal < 0 or ordinal > 15:
-            raise ValueError("Must be a value between 0 and 360")
+            raise ValueError("Must be a value between 0 and 15")
         directions = [
             "N", "NNO", "NO", "ONO", "O", "OSO", "SO", "SSO",
             "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"
@@ -127,8 +127,14 @@ class WeatherlinkClient:
 
     def generate_wind_records_html(self, wind_records, n):
 
-        html = """
-        
+        html = """<!doctype html>
+<html>
+        <head>
+            <title>
+            Wetter Merkur
+            </title>
+        </head>
+        <body>
         <style>
     table {
         width: 90%;
@@ -210,5 +216,5 @@ class WeatherlinkClient:
             </tr>
             """
 
-        html += "</table>"
+        html += "</table></body></html>"
         return html
